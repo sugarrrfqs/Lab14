@@ -1,0 +1,248 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+
+using namespace std;
+
+struct human
+{
+  string fio;
+  string date;
+  int number;
+};
+
+int main()
+{
+// Описание переменных
+  ifstream input ("F.txt");
+  string suff, preff, row, fio, fioForPrefFun;
+  human humans[100];
+  int i=0, j, k, length, fioLength, searchFioLength, skip, n, prefFun[100], m, o, moveTable[100], l, z, x;
+  bool f, fl, fla, flag=false;
+//
+
+// Читаем информацию из файла
+  while (!input.eof())
+  {
+    
+
+    getline (input, row);
+    humans[i].fio=row;
+
+    getline (input, row);
+    humans[i].date=row;
+
+    getline (input, row);
+  
+    humans[i].number=(row[0]-'0')*100000+(row[1]-'0')*10000+(row[2]-'0')*1000+(row[3]-'0')*100+(row[4]-'0')*10+(row[5]-'0');
+
+    i++;
+  }
+  input.close();
+  length=i;
+//
+
+// Выводим массив в консоль
+  cout<<"Ваш массив:\n";
+  for (i=0;i<length;i++) 
+  {
+    cout<<"Фио: "<<humans[i].fio<<'\n'<<"Дата рождения: "<<humans[i].date<<'\n'<<"Номер паспорта: "<<humans[i].number<<'\n'<<'\n';
+  }
+//
+
+// Метод кнута-морриса-пратта
+  cout<<"Введите фио человека, которого вы ищете ";
+  getline (cin, fioForPrefFun);
+  searchFioLength=fioForPrefFun.length();
+
+  for (m=0; m<length; m++)
+  {
+  f=false;
+  fio=fioForPrefFun+'@'+humans[m].fio;
+  
+  
+
+  fioLength=fio.length();
+  
+  cout<<"то самое "<<fioLength<<'\n';
+  for (i=0; i<fioLength; i++)
+  { 
+    cout<<"i= "<<i<<'\n';
+    for (j=0; j<i; j++)
+    {
+      preff="";
+      suff="";
+      for (k=0; k<=j; k++)
+      {
+        preff+=fio[k];
+        suff+=fio[i-j+k];
+      }
+    
+      cout<<"preff= "<<preff<<" suff= "<<suff;
+      if (preff==suff)
+      {
+        skip=j+1;
+        cout<<" Совпало, skip= "<<skip;
+      }
+      cout<<'\n';
+    }
+    cout<<'\n';
+    if (i==0) prefFun[i]=0;
+    else prefFun[i]=skip;
+    skip=0;
+  }
+  
+  cout<<"Ваша префикс функция ";
+  for (i=0; i<fioLength; i++)
+  {
+    cout<<prefFun[i]<<' ';
+  }
+  cout<<'\n';
+  
+  
+  for (i=0; i<fioLength; i++)
+  {
+    if (prefFun[i]==searchFioLength)
+    {
+      
+      f=true;
+      o=m;
+    }
+    
+  }
+  if (f)
+  {
+    cout<<"Строка содержит подстроку, индекс человека в массиве- "<<m<<'\n';
+    fl=true;
+  }
+  else 
+  {
+    cout<<"Строка не содержит подстроку\n";
+  }
+  }
+  cout<<'\n';
+
+  if (fl) 
+  {
+    cout<<"Человек найден (Метод кнута-морриса-пратта), его позиция в списке- "<<o+1<<'\n';
+  }
+  else 
+  {
+    cout<<"Человека с введенным фио нет в списке (Метод кнута-морриса-пратта)";
+  }
+//
+
+// Метод Бойера-Мура
+  fio=fioForPrefFun+'*';
+  fioLength=fio.length();
+  cout<<fioLength<<'\n';
+  
+  k=1;
+  for (i=fioLength-1; i>-1; i--)
+  {
+    f=false;
+    if (fio[i]=='*' or i==fioLength-2)
+    {
+      moveTable[i]=fioLength-1;
+      f=true;
+    }
+    else 
+    {
+      for (j=fioLength-1; j>i; j--)
+      {
+      
+        if (fio[i]==fio[j]) 
+        {
+          f=true;
+          if (j==fioLength-2  && !flag)
+          {
+            moveTable[i]=k;
+            moveTable[j]=moveTable[i];
+            flag=true;
+          }
+          else
+          {
+            moveTable[i]=moveTable[j];
+          }
+        }
+        
+    }
+    if (!f) moveTable[i]=k;
+      
+    k++;
+  }
+  }
+
+  cout<<'\n'<<'\n'<<"Таблица сдвигов:\n";
+  for (i=0; i<fioLength; i++)
+  {
+    cout<<fio[i]<<' ';
+  }
+  cout<<'\n';
+  for (i=0; i<fioLength; i++)
+  {
+    cout<<moveTable[i]<<' ';
+  }
+  cout<<'\n';
+  
+  i=0;
+  fla=true;
+
+  while (i<length && fla)
+  {
+    m=fioLength-2;
+    j=fioLength-2;
+    cout<<"i= "<<i<<'\n';
+    while (m<=humans[i].fio.length()-1 && fla && j<fioLength-1)
+    {
+      f=false;
+
+      cout<<m<<' '<<humans[i].fio[m]<<' '<<j<<' '<<fio[j]<<'\n';
+
+      if (humans[i].fio[m]!=fio[j])
+      {
+        for (k=0; k<fioLength-1; k++)
+        {
+          
+
+          if (humans[i].fio[fioLength]==fio[k] && !f)
+          {
+            m+=moveTable[k];
+            f=true;
+            j=fioLength-1;
+          }
+        }
+
+        if (!f)
+        {
+          m+=moveTable[fioLength-1];
+          j=fioLength-1;
+        }
+      }
+      else 
+      {
+        m--;
+        j--;
+      }
+  
+      if (j==-1)
+      {
+        fla=false;
+        l=i+1;
+      }
+    }
+    i++;
+  }
+
+  if (!fla)
+  {
+    cout<<"Человек найден (Метод Бойера- Мура), его позиция - "<<l<<'\n';
+  }
+  else 
+  {
+    cout<<"Человека с введенным фио нет в списке (Метод Бойера- Мура)";
+  }
+  
+//
+}
+
